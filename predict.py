@@ -26,6 +26,9 @@ import vpd
 import cv2
 from vpd.config import C, M
 from vpd.models.sphere.sphere_utils import gold_spiral_sampling_patch
+import matplotlib.pyplot as plt
+import math
+
 class Detect_VP:
 
     def topk_orthogonal_vps(self, scores, xyz, num_vps=3):
@@ -49,18 +52,14 @@ class Detect_VP:
 
         vps_pd = xyz[vps_idx]
         return vps_pd, vps_idx
+    
 
-    def compute_error(self, vps_pd, vps_gt):
-        error = np.arccos(np.abs(vps_gt @ vps_pd.transpose()).clip(max=1))
-        error = error.min(axis=1) / np.pi * 180.0 # num_pd x num_gt, axis=1
-        return error.flatten()
+    @staticmethod
+    def calc_error(pred_point, truth_point):
+        a = int(float(truth_point[0])) - int(float(pred_point[0])) # x
+        b = int(float(truth_point[1])) - int(float(pred_point[1])) # y
 
-
-    def AA(self, x, y, threshold):
-        index = np.searchsorted(x, threshold)
-        x = np.concatenate([x[:index], [threshold]])
-        y = np.concatenate([y[:index], [threshold]])
-        return ((x[1:] - x[:-1]) * y[:-1]).sum() / threshold
+        return math.sqrt((a * a) + (b * b))
 
 
 
@@ -107,7 +106,7 @@ class Detect_VP:
 
 
         npzfile = np.load(C.io.sphere_mapping, allow_pickle=True)
-        sphere_neighbors = npzfile['sphere_neighbors']
+        sphere_neighbors = npzfile['sphere_neighbors_weight']
         vote_sphere_dict={}
         vote_sphere_dict["vote_mapping"]=torch.tensor(sphere_neighbors, requires_grad=False).float().contiguous()
         vote_sphere_dict["ht_size"]=(npzfile['h'], npzfile['w'])
@@ -145,6 +144,38 @@ class Detect_VP:
         self.xyz = gold_spiral_sampling_patch(np.array([0, 0, 1]), alpha=90.0 * np.pi / 180., num_pts=C.io.num_nodes)
 
 
+
+    @classmethod
+    def Visualize_Eval(cls, save_dir):
+
+        with open("etri_cart_200219_15h01m_2fps_gt3.txt","r") as f:
+            ground_t = f.readlines()
+        with open(save_dir+"result.txt","r") as f:
+            pred_t = f.readlines()
+
+        errors = []
+        pred_frame_count = 0
+
+        for frame_count in range(0,len(ground_t)):
+            if int(pred_t[pred_frame_count].split(" ")[0]) == int(ground_t[frame_count].split(",")[0]):
+                error = cls.calc_error((pred_t[pred_frame_count].split(" ")[2], pred_t[pred_frame_count].split(" ")[3]),
+                                        (ground_t[frame_count].split(",")[2], ground_t[frame_count].split(",")[3]))
+                errors.append(error)
+                pred_frame_count += 1
+            else:
+                pred_frame_count = (int(ground_t[frame_count].split(",")[0]) - int(ground_t[frame_count -1].split(",")[0])) + pred_frame_count 
+                error = cls.calc_error((pred_t[pred_frame_count].split(" ")[2], pred_t[pred_frame_count].split(" ")[3]),
+                                        (ground_t[frame_count].split(",")[2], ground_t[frame_count].split(",")[3]))
+                errors.append(error)
+            
+
+
+        ground_frames = list(map(lambda a:int(a.split(",")[0]), ground_t))
+        plt.bar(ground_frames, errors, label="point loss distance")
+        plt.legend()
+        plt.savefig(save_dir+"error.pdf", format='pdf')
+
+
     def predict(self, input_img, img_size):
         image = input_img
         origin_image = input_img
@@ -167,8 +198,8 @@ class Detect_VP:
         vpts_pd, vpts_idx = self.topk_orthogonal_vps(pred, self.xyz, num_vps=3)
         
         
-        # You might want to resize VPs from [480, 640] to original size [img_h, img_w].
         ys, xs = self.to_pixel(vpts_pd, focal_length=1.0, h=720, w=1280)
+
 
         result_x = -1
         result_y = -1
@@ -180,6 +211,7 @@ class Detect_VP:
                 result_y = y
 
             origin_image = cv2.circle(origin_image, (int(x),int(y)), radius=20, color=(0,0,255), thickness=-1)
+
 
         return (result_x,result_y,origin_image)
 
