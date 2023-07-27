@@ -54,14 +54,6 @@ class Detect_VP:
         return vps_pd, vps_idx
     
 
-    @staticmethod
-    def calc_error(pred_point, truth_point):
-        a = int(float(truth_point[0])) - int(float(pred_point[0])) # x
-        b = int(float(truth_point[1])) - int(float(pred_point[1])) # y
-
-        return math.sqrt((a * a) + (b * b))
-
-
 
     def to_pixel(self, vpts, focal_length=1.0, h=480, w=640):
         x = vpts[:,0] / vpts[:, 2] * focal_length * max(h, w)/2.0 + w//2
@@ -69,7 +61,30 @@ class Detect_VP:
         return y, x
 
 
+    def _AA(self, a, b, thresh):
+        v = 0
+        k = [i for i, val in enumerate(a) if val < thresh]
+
+        if not k:
+            return v
+
+        a = [a[i] for i in k]
+        a.append(thresh)
+
+        n = len(a)
+        for i in range(n - 1):
+            v = v + (a[i + 1] - a[i]) * b[i]
+
+        return v
+
     def __init__(self,model_path,yaml_name):
+
+        # file = open("etri_cart_200219_15h01m_2fps_gt3.txt","r")
+        # self.ground_t = file.readlines()
+        # file.close()
+
+        self.frame_count = 0
+
         self.model_path = model_path
 
         C.update(C.from_yaml(filename=f"config/{yaml_name}.yaml"))
@@ -82,7 +97,7 @@ class Detect_VP:
         torch.manual_seed(0)
         
 
-        device_name = "cpu"
+        device_name = "gpu"
         os.environ["CUDA_VISIBLE_DEVICES"] = "0"
         if torch.cuda.is_available():
             device_name = "cuda"
@@ -106,7 +121,7 @@ class Detect_VP:
 
 
         npzfile = np.load(C.io.sphere_mapping, allow_pickle=True)
-        sphere_neighbors = npzfile['sphere_neighbors_weight']
+        sphere_neighbors = npzfile['sphere_neighbors']
         vote_sphere_dict={}
         vote_sphere_dict["vote_mapping"]=torch.tensor(sphere_neighbors, requires_grad=False).float().contiguous()
         vote_sphere_dict["ht_size"]=(npzfile['h'], npzfile['w'])
@@ -144,39 +159,36 @@ class Detect_VP:
         self.xyz = gold_spiral_sampling_patch(np.array([0, 0, 1]), alpha=90.0 * np.pi / 180., num_pts=C.io.num_nodes)
 
 
+    
+    def _vector_magnitude(self, x, y):
+        # 벡터의 크기(절대값)를 계산합니다.
+        return math.sqrt(x**2 + y**2)
 
-    @classmethod
-    def Visualize_Eval(cls, save_dir):
+    def dot_product_cosine_angle(self, x1, y1, x2, y2):
+        # 두 점의 벡터를 구합니다.
+        vector1 = (x1, y1)
+        vector2 = (x2, y2)
 
-        with open("etri_cart_200219_15h01m_2fps_gt3.txt","r") as f:
-            ground_t = f.readlines()
-        with open(save_dir+"result.txt","r") as f:
-            pred_t = f.readlines()
+        # 두 벡터의 크기를 계산합니다.
+        magnitude1 = self._vector_magnitude(vector1[0], vector1[1])
+        magnitude2 = self._vector_magnitude(vector2[0], vector2[1])
 
-        errors = []
-        pred_frame_count = 0
+        # 두 벡터의 내적(dot product)을 계산합니다.
+        dot_product = vector1[0] * vector2[0] + vector1[1] * vector2[1]
 
-        for frame_count in range(0,len(ground_t)):
-            if int(pred_t[pred_frame_count].split(" ")[0]) == int(ground_t[frame_count].split(",")[0]):
-                error = cls.calc_error((pred_t[pred_frame_count].split(" ")[2], pred_t[pred_frame_count].split(" ")[3]),
-                                        (ground_t[frame_count].split(",")[2], ground_t[frame_count].split(",")[3]))
-                errors.append(error)
-                pred_frame_count += 1
-            else:
-                pred_frame_count = (int(ground_t[frame_count].split(",")[0]) - int(ground_t[frame_count -1].split(",")[0])) + pred_frame_count 
-                error = cls.calc_error((pred_t[pred_frame_count].split(" ")[2], pred_t[pred_frame_count].split(" ")[3]),
-                                        (ground_t[frame_count].split(",")[2], ground_t[frame_count].split(",")[3]))
-                errors.append(error)
-            
+        # 두 벡터의 코사인 각도를 계산합니다.
+        cosine_angle = dot_product / (magnitude1 * magnitude2)
 
+        # 코사인 각도를 라디안으로 변환하여 반환합니다.
+        angle_in_radians = math.acos(cosine_angle)
 
-        ground_frames = list(map(lambda a:int(a.split(",")[0]), ground_t))
-        plt.bar(ground_frames, errors, label="point loss distance")
-        plt.legend()
-        plt.savefig(save_dir+"error.pdf", format='pdf')
+        # 라디안을 도(degree)로 변환하여 반환합니다.
+        angle_in_degrees = math.degrees(angle_in_radians)
+
+        return angle_in_degrees
 
 
-    def predict(self, input_img, img_size):
+    def predict(self, input_img, img_size, threshold, frame):
         image = input_img
         origin_image = input_img
 
@@ -204,16 +216,24 @@ class Detect_VP:
         result_x = -1
         result_y = -1
 
+
+        resultcoord = []
+        
+
         ### visualize results on the hemisphere
         for (x, y) in zip(xs, ys):
             if (x <= 1280 and x >= 0) and (y <= 720 and y >= 0):
                 result_x = x
                 result_y = y
+                resultcoord.insert(0,(x,y))
+            else:
+                resultcoord.append((x,y))
 
-            origin_image = cv2.circle(origin_image, (int(x),int(y)), radius=20, color=(0,0,255), thickness=-1)
+        origin_image = cv2.circle(origin_image, (int(result_x),int(result_y)), radius=20, color=(0,0,255), thickness=-1)
 
-
-        return (result_x,result_y,origin_image)
+        #조건 정렬
+        sorted(resultcoord, key=lambda x: (x[0], x[1])if (x[0], x[1]) == (result_x,result_y) else x)
+        return (result_x,result_y,origin_image,resultcoord)
 
 
 
