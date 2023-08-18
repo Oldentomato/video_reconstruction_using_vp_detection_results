@@ -121,7 +121,7 @@ class Detect_VP:
 
 
         npzfile = np.load(C.io.sphere_mapping, allow_pickle=True)
-        sphere_neighbors = npzfile['sphere_neighbors']
+        sphere_neighbors = npzfile['sphere_neighbors'] #nyu: sphere_neighbors_weight
         vote_sphere_dict={}
         vote_sphere_dict["vote_mapping"]=torch.tensor(sphere_neighbors, requires_grad=False).float().contiguous()
         vote_sphere_dict["ht_size"]=(npzfile['h'], npzfile['w'])

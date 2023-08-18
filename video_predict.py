@@ -31,7 +31,7 @@ def Get_Video_Frame(dir, yaml_name, model_path, save_dir):
 
         if vidcap.get(cv2.CAP_PROP_POS_FRAMES) >= DELAY_FRAME:
             start_time = time.time()
-            x,y,result_img,result_coord = detect.predict(image,(512,512), [10, 40, 80], int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))) #NYU 640,480 Scannet 512,512
+            x,y,result_img,result_coord = detect.predict(image,(512,512), [10, 40, 80], int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))) #NYU 640,480 Scannet,SU3 512,512
             if x != -1:
                 cv2.putText(result_img,f"x = {round(x, 2)} y = {round(y, 2)}",(10,20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
             else:
@@ -58,12 +58,13 @@ def Get_Video_Frame(dir, yaml_name, model_path, save_dir):
     perform_txt_dir.close()
     vidcap.release()
     Draw_AA.draw_graph(gt_dir = "etri_cart_200219_15h01m_2fps_gt3.txt",
-                        rt_dir = "./saved_results/ScanNet/result_graph.txt",
-                        save_dir = "./saved_results/ScanNet/AA_graph.png")
+                        rt_dirs = ["./saved_results/SU3/result_graph.txt"],
+                        save_dir = "./saved_results/SU3/AA_graph.png",
+                        data_names=["su3"])
 
 
 if __name__ == "__main__":
     Get_Video_Frame(dir = "/home/ubuntu/Desktop/etri_data/etri_cart_200219_15h01m_2fps.avi",
-                    yaml_name = 'scannet',
-                    model_path= "./model/scannet/checkpoint_latest.pth.tar",
-                    save_dir = "./saved_results/ScanNet/")
+                    yaml_name = 'su3',
+                    model_path= "./model/su3/checkpoint_latest.pth.tar",
+                    save_dir = "./saved_results/SU3/")
