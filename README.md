@@ -35,15 +35,15 @@
     |TMM17(neur)|0.85 sec|
 - AA(Angular Accuracy) Graph  
     - cvpr  
-    [img1](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/AA_graph_cvpr.png)  
+    ![img1](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/AA_graph_cvpr.png)  
     - neur  
-    [img2](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/AA_graph_neur.png)  
+    ![img2](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/AA_graph_neur.png)  
    - all  
-    [img3](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/AA_graph.png)  
+    ![img3](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/AA_graph.png)  
 
  ### SnapShot  
  - cvpr NYU Dataset Result  
-    [img4](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/AA_graph.png)  
+   
 
 ### Reference paper  
 [(cvpr) https://arxiv.org/abs/2203.08586](https://arxiv.org/abs/2203.08586)  
