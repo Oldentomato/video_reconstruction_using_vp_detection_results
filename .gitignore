@@ -1,4 +1,6 @@
-/model
-/parameterization
-/saved_results
+/cvpr22/model
+/cvpr22/parameterization
+/cvpr22/saved_results
 etri_cart_200219_15h01m_2fps_gt3.txt
+/neurVPS/model
+
