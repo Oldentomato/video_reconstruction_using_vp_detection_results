@@ -1,7 +1,6 @@
 import os
 import math
 import random
-
 import numpy as np
 import torch,gc
 import numpy.linalg as LA
@@ -109,21 +108,23 @@ class Detect_VP:
         result_x = -1
         result_y = -1
         resultcoord = []
+        result_count = 0
         for coord in vpts_pd:
             y,x = self.to_pixel(coord)
             if x <= 1280 and y <= 720 and x >= 0 and y >= 0:
                 resultcoord.insert(0,(x,y))
                 result_x = x
                 result_y = y
+                result_count += 1
             else:
                 resultcoord.append((x,y))
 
         while len(resultcoord) < 3:
             resultcoord.append((-1,-1))
 
-        origin_img = cv2.circle(origin_img, (int(result_x),int(result_y)), radius=20, color=(0,0,255), thickness=-1)
+        # origin_img = cv2.circle(origin_img, (int(result_x),int(result_y)), radius=20, color=(255,0,0), thickness=-1)
         sorted(resultcoord, key=lambda x: (x[0], x[1])if (x[0], x[1]) == (result_x,result_y) else x)
-        return (result_x,result_y,origin_img,resultcoord)
+        return (result_x,result_y,result_count,origin_img,resultcoord)
 
 
 

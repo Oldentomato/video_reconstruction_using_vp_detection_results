@@ -28,7 +28,7 @@ def Get_Video_Frame(dir, model_path, save_dir):
 
         if vidcap.get(cv2.CAP_PROP_POS_FRAMES) >= DELAY_FRAME:
             start_time = time.time()
-            x,y,result_img,result_coord = detect.predict(image,(512,512)) 
+            x,y,result_count,result_img,result_coord = detect.predict(image,(512,512)) 
             if x != -1:
                 cv2.putText(result_img,f"x = {round(x, 2)} y = {round(y, 2)}",(10,20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
             else:
@@ -40,7 +40,7 @@ def Get_Video_Frame(dir, model_path, save_dir):
             coord_str = ""
             for coord in result_coord:
                 coord_str += f",{round(coord[0],2)},{round(coord[1],2)}"
-            txt_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{len(result_coord)}{coord_str}\n")
+            txt_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{result_count}{coord_str}\n")
             graph_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{round(x, 2)},{round(y, 2)}\n")
             
             perform_avg.append(end_time - start_time)
