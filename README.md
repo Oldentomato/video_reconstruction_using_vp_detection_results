@@ -43,7 +43,7 @@
 
  ### SnapShot  
  - cvpr NYU Dataset Result  
-   
+   ![img4](https://github.com/Oldentomato/detect_vp-reconstruction_vid/blob/main/README_imgs/snapshot.gif)
 
 ### Reference paper  
 [(cvpr) https://arxiv.org/abs/2203.08586](https://arxiv.org/abs/2203.08586)  
