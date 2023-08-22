@@ -31,7 +31,7 @@ def Get_Video_Frame(dir, yaml_name, model_path, save_dir):
 
         if vidcap.get(cv2.CAP_PROP_POS_FRAMES) >= DELAY_FRAME:
             start_time = time.time()
-            x,y,result_img,result_coord = detect.predict(image,(512,512), [10, 40, 80], int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))) #NYU 640,480 Scannet,SU3 512,512
+            x,y,result_count,result_img,result_coord = detect.predict(image,(640,480)) #NYU 640,480 Scannet,SU3 512,512
             if x != -1:
                 cv2.putText(result_img,f"x = {round(x, 2)} y = {round(y, 2)}",(10,20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
             else:
@@ -43,7 +43,7 @@ def Get_Video_Frame(dir, yaml_name, model_path, save_dir):
             coord_str = ""
             for coord in result_coord:
                 coord_str += f",{round(coord[0],2)},{round(coord[1],2)}"
-            txt_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))}{coord_str}\n")
+            txt_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{result_count}{coord_str}\n")
             graph_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{round(x, 2)},{round(y, 2)}\n")
             
             perform_avg.append(end_time - start_time)
@@ -65,6 +65,6 @@ def Get_Video_Frame(dir, yaml_name, model_path, save_dir):
 
 if __name__ == "__main__":
     Get_Video_Frame(dir = "/home/ubuntu/Desktop/etri_data/etri_cart_200219_15h01m_2fps.avi",
-                    yaml_name = 'su3',
-                    model_path= "./model/su3/checkpoint_latest.pth.tar",
-                    save_dir = "./saved_results/SU3/")
+                    yaml_name = 'nyu',
+                    model_path= "./model/nyu/checkpoint_latest.pth.tar",
+                    save_dir = "./saved_results/NYU/")

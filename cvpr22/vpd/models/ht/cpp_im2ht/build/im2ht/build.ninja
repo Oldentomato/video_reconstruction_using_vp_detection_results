@@ -21,8 +21,8 @@ rule cuda_compile
 rule link
   command = $cxx $in $ldflags -o $out
 
-build ht_cuda.cuda.o: cuda_compile /home/ubuntu/Desktop/compare_result/vpd/models/ht/cpp_im2ht/ht_cuda.cu
-build im2ht.o: compile /home/ubuntu/Desktop/compare_result/vpd/models/ht/cpp_im2ht/im2ht.cpp
+build ht_cuda.cuda.o: cuda_compile /home/ubuntu/Desktop/compare_result/cvpr22/vpd/models/ht/cpp_im2ht/ht_cuda.cu
+build im2ht.o: compile /home/ubuntu/Desktop/compare_result/cvpr22/vpd/models/ht/cpp_im2ht/im2ht.cpp
 
 build im2ht.so: link ht_cuda.cuda.o im2ht.o
 

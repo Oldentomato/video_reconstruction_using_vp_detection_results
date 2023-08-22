@@ -21,8 +21,8 @@ rule cuda_compile
 rule link
   command = $cxx $in $ldflags -o $out
 
-build sphere_cuda.cuda.o: cuda_compile /home/ubuntu/Desktop/compare_result/vpd/models/sphere/cpp_ht2sphere/sphere_cuda.cu
-build ht2sphere.o: compile /home/ubuntu/Desktop/compare_result/vpd/models/sphere/cpp_ht2sphere/ht2sphere.cpp
+build sphere_cuda.cuda.o: cuda_compile /home/ubuntu/Desktop/compare_result/cvpr22/vpd/models/sphere/cpp_ht2sphere/sphere_cuda.cu
+build ht2sphere.o: compile /home/ubuntu/Desktop/compare_result/cvpr22/vpd/models/sphere/cpp_ht2sphere/ht2sphere.cpp
 
 build ht2sphere.so: link sphere_cuda.cuda.o ht2sphere.o
 

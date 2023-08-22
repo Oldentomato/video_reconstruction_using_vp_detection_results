@@ -26,7 +26,6 @@ import vpd
 import cv2
 from vpd.config import C, M
 from vpd.models.sphere.sphere_utils import gold_spiral_sampling_patch
-import matplotlib.pyplot as plt
 import math
 
 class Detect_VP:
@@ -87,7 +86,7 @@ class Detect_VP:
 
         self.model_path = model_path
 
-        C.update(C.from_yaml(filename=f"config/{yaml_name}.yaml"))
+        C.update(C.from_yaml(filename=f"./config/{yaml_name}.yaml"))
         C.model.im2col_step = 32  # override im2col_step for evaluation
         M.update(C.model)
         pprint.pprint(C, indent=4)
@@ -121,7 +120,7 @@ class Detect_VP:
 
 
         npzfile = np.load(C.io.sphere_mapping, allow_pickle=True)
-        sphere_neighbors = npzfile['sphere_neighbors'] #nyu: sphere_neighbors_weight
+        sphere_neighbors = npzfile['sphere_neighbors_weight'] #nyu: sphere_neighbors_weight
         vote_sphere_dict={}
         vote_sphere_dict["vote_mapping"]=torch.tensor(sphere_neighbors, requires_grad=False).float().contiguous()
         vote_sphere_dict["ht_size"]=(npzfile['h'], npzfile['w'])
@@ -188,7 +187,7 @@ class Detect_VP:
         return angle_in_degrees
 
 
-    def predict(self, input_img, img_size, threshold, frame):
+    def predict(self, input_img, img_size):
         image = input_img
         origin_image = input_img
 
@@ -218,6 +217,7 @@ class Detect_VP:
 
 
         resultcoord = []
+        result_count = 0
         
 
         ### visualize results on the hemisphere
@@ -226,14 +226,15 @@ class Detect_VP:
                 result_x = x
                 result_y = y
                 resultcoord.insert(0,(x,y))
+                result_count += 1
             else:
                 resultcoord.append((x,y))
 
-        origin_image = cv2.circle(origin_image, (int(result_x),int(result_y)), radius=20, color=(0,0,255), thickness=-1)
+        origin_image = cv2.circle(origin_image, (int(result_x),int(result_y)), radius=20, color=(0,255,0), thickness=-1)
 
         #조건 정렬
         sorted(resultcoord, key=lambda x: (x[0], x[1])if (x[0], x[1]) == (result_x,result_y) else x)
-        return (result_x,result_y,origin_image,resultcoord)
+        return (result_x,result_y,result_count,origin_image,resultcoord)
 
 
 
