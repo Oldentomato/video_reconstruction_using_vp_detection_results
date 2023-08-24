@@ -5,10 +5,10 @@ import time
 from deg_error import Draw_AA
 
 
-def Get_Video_Frame(dir, model_path, save_dir):
+def Get_Video_Frame(dir,yaml_name, model_path, save_dir):
     DELAY_FRAME = 381
     vidcap = cv2.VideoCapture(dir)
-    detect = Detect_VP(model_path,"tmm17")
+    detect = Detect_VP(model_path,yaml_name)
     fps = vidcap.get(cv2.CAP_PROP_FPS)
 
     fourcc = cv2.VideoWriter_fourcc(*'DIVX')
@@ -55,12 +55,20 @@ def Get_Video_Frame(dir, model_path, save_dir):
     perform_txt_dir.close()
     vidcap.release()
     Draw_AA.draw_graph(gt_dir = "etri_cart_200219_15h01m_2fps_gt3.txt",
-                        rt_dirs = ["./saved_results/tmm17/result_graph.txt"],
-                        save_dir = "./saved_results/tmm17/AA_graph.png",
-                        data_names=["tmm17"])
+                        rt_dirs = [f"./saved_results/{yaml_name}/result_graph.txt"],
+                        save_dir = f"./saved_results/{yaml_name}/AA_graph.png",
+                        data_names=[f"{yaml_name}"])
 
 
 if __name__ == "__main__":
-    Get_Video_Frame(dir = "/home/ubuntu/Desktop/etri_data/etri_cart_200219_15h01m_2fps.avi",
-                    model_path= "./model/tmm17/checkpoint_best.pth.tar",
-                    save_dir = "./saved_results/tmm17/")
+    arguments = sys.argv
+  
+    if len(arguments) == 1:
+        dataset = 'nyu'
+    else:
+        dataset = arguments[1]
+
+    Get_Video_Frame(dir = "/data/etri_cart_200219_15h01m_2fps.avi",
+                    yaml_name = dataset,
+                    model_path= f"./model/{dataset}/checkpoint_best.pth.tar",
+                    save_dir = f"./saved_results/{dataset}/")
