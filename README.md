@@ -13,7 +13,7 @@ conda activate vpd
 conda env update --file config/environment.yml
 ```
 
-- download datasets  
+- download models data  
 [download](https://github.com/Oldentomato/detect_vp-reconstruction_vid/releases/download/1.0/vp_env_files.zip)
 
 - make dirs
