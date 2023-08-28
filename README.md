@@ -1,6 +1,6 @@
 ## Video reconstruction using vp detection results  
 ### Used sources
-- [(cvpr'22)VanishingPoint_HoughTransform_GaussianSphere](https://github.com/yanconglin/VanishingPoint_HoughTransform_GaussianSphere) (Dockerfile Ready)
+- [(cvpr'22)VanishingPoint_HoughTransform_GaussianSphere](https://github.com/yanconglin/VanishingPoint_HoughTransform_GaussianSphere) 
 - [(neurVPS)NeurVPS](https://github.com/zhou13/neurvps)  
 
 
