@@ -117,11 +117,12 @@ class Detect_VP:
                 result_y = y
                 result_count += 1
             else:
-                resultcoord.append((-1,-1))
+                # resultcoord.append((-1,-1))
+                resultcoord.append((x,y))
 
 
-        # origin_img = cv2.circle(origin_img, (int(result_x),int(result_y)), radius=20, color=(255,0,0), thickness=-1)
-        sorted(resultcoord, key=lambda x: (x[0], x[1])if (x[0], x[1]) == (result_x,result_y) else x)
+        origin_img = cv2.circle(origin_img, (int(result_x),int(result_y)), radius=20, color=(255,0,0), thickness=-1)
+        # sorted(resultcoord, key=lambda x: (x[0], x[1])if (x[0], x[1]) == (result_x,result_y) else x)
         return (result_x,result_y,result_count,origin_img,resultcoord)
 
 

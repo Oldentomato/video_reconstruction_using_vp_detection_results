@@ -40,7 +40,8 @@ def Get_Video_Frame(dir,yaml_name, model_path, save_dir):
             coord_str = ""
             for coord in result_coord:
                 coord_str += f",{round(coord[0],2)},{round(coord[1],2)}"
-            txt_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{result_count}{coord_str}\n")
+            # txt_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{result_count}{coord_str}\n")
+            txt_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{len(result_coord)}{coord_str}\n")
             graph_file.write(f"{int(vidcap.get(cv2.CAP_PROP_POS_FRAMES))},{round(x, 2)},{round(y, 2)}\n")
             
             perform_avg.append(end_time - start_time)
@@ -64,11 +65,11 @@ if __name__ == "__main__":
     arguments = sys.argv
   
     if len(arguments) == 1:
-        dataset = 'nyu'
+        dataset = 'su3'
     else:
         dataset = arguments[1]
 
-    Get_Video_Frame(dir = "/data/etri_cart_200219_15h01m_2fps.avi",
+    Get_Video_Frame(dir = "./etri_cart_200219_15h01m_2fps.avi",
                     yaml_name = dataset,
                     model_path= f"./model/{dataset}/checkpoint_best.pth.tar",
                     save_dir = f"./saved_results/{dataset}/")

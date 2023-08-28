@@ -223,16 +223,17 @@ class Detect_VP:
         ### visualize results on the hemisphere
         for (x, y) in zip(xs, ys):
             if (x <= 1280 and x >= 0) and (y <= 720 and y >= 0):
-
+                result_x, result_y = x,y
                 resultcoord.insert(0,(x,y))
                 result_count += 1
             else:
-                resultcoord.append((-1,-1))
+                # resultcoord.append((-1,-1))
+                resultcoord.append((x,y))
 
         origin_image = cv2.circle(origin_image, (int(result_x),int(result_y)), radius=20, color=(0,255,0), thickness=-1)
 
         #조건 정렬
-        sorted(resultcoord, key=lambda x: (x[0], x[1])if (x[0], x[1]) == (result_x,result_y) else x)
+        # sorted(resultcoord, key=lambda x: (x[0], x[1])if (x[0], x[1]) == (result_x,result_y) else x)
         return (result_x,result_y,result_count,origin_image,resultcoord)
 
 
