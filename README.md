@@ -3,6 +3,38 @@
 - [(cvpr'22)VanishingPoint_HoughTransform_GaussianSphere](https://github.com/yanconglin/VanishingPoint_HoughTransform_GaussianSphere) (Dockerfile Ready)
 - [(neurVPS)NeurVPS](https://github.com/zhou13/neurvps)  
 
+
+### How to use  
+- set enviroment 
+```bash
+cd cvpr22
+conda create -y -n vpd
+conda activate vpd
+conda env update --file config/environment.yml
+```
+
+- make dirs
+    - cvpr22
+        - saved_results
+            - nyu
+            - scannet
+            - su3
+    - neurVPS
+        - saved_results
+            - scannet
+            - su3
+            - tmm17
+
+- modify cvpr code in video_predict.py and predict.py  
+    - img_size: video_predict.py 35 line
+    - weight_name: predict.py 123 line
+
+- run python code  
+```bash
+cd cvpr22 # or cd neurVPS
+python video_predict.py nyu #scannet su3
+```
+
 ### Specification  
 |name|info|
 |---|---|
